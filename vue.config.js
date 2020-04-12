@@ -27,7 +27,7 @@ module.exports = {
   publicPath: './',
   outputDir: 'dist',
   assetsDir: 'static',
-  lintOnSave: process.env.NODE_ENV === 'development',
+  // lintOnSave: process.env.NODE_ENV === 'development',
   productionSourceMap: false,
   devServer: {
     port: port,
@@ -36,7 +36,19 @@ module.exports = {
       warnings: false,
       errors: true
     },
-    before: require('./mock/mock-server.js')
+    // assetsSubDirectory: 'static',
+    // assetsPublicPath: '/',
+
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080', //API服务器的地址
+        changeOrigin: true, // 虚拟的站点需要更管origin
+        pathRewrite: {   //重写路径 比如'/api/aaa/ccc'重写为'/aaa/ccc'
+          '^/api': ''
+        }
+      }
+    },
+    // before: require('./mock/mock-server.js')
   },
   configureWebpack: {
     // provide the app's title in webpack's name field, so that

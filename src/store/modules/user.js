@@ -1,6 +1,7 @@
-import { login, logout, getInfo } from '@/api/user'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { login, logout, getInfo } from '@/api/admin'
+import { getToken, setToken, removeToken, setUserName, getUserName } from '@/utils/auth'
 import { resetRouter } from '@/router'
+import axios from 'axios'
 
 const getDefaultState = () => {
   return {
@@ -32,21 +33,23 @@ const actions = {
   login({ commit }, userInfo) {
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
-      login({ username: username.trim(), password: password }).then(response => {
-        const { data } = response
-        commit('SET_TOKEN', data.token)
+      login(username.trim(), password).then(response => {
+        const data = response.data
         setToken(data.token)
+        commit('SET_TOKEN', data.token)
+        setUserName(username)
+        axios.defaults.headers.common['Authorization'] = data.token // 全局所有接口加上这个属性
         resolve()
       }).catch(error => {
         reject(error)
       })
     })
   },
-
+  // TODO 登陆之后要获取info
   // get user info
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
+      getInfo(getUserName()).then(response => {
         const { data } = response
 
         if (!data) {
